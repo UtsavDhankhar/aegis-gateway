@@ -9,6 +9,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @Component
 public final class GatewayHttpHandler {
 
@@ -35,14 +37,9 @@ public final class GatewayHttpHandler {
                 .status(response.status())
                 .headers(headers -> headers.addAll(response.headers()))
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("""
-                        {
-                          "status": "%s",
-                          "message": "%s"
-                        }
-                        """.formatted(
-                        response.status().value(),
-                        response.body()
+                .bodyValue(Map.of(
+                        "status", response.status().value(),
+                        "message", response.body()
                 ));
     }
 }

@@ -25,10 +25,7 @@ public final class DefaultGatewayPipeline implements GatewayPipeline {
         return new DefaultGatewayFilterChain(filters, 0)
                 .next(context)
                 .switchIfEmpty(Mono.just(
-                        GatewayResponse.error(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                "Gateway pipeline completed without response"
-                        )
+                        GatewayResponse.error(HttpStatus.INTERNAL_SERVER_ERROR,"Gateway pipeline completed without response")
                 ));
     }
 }

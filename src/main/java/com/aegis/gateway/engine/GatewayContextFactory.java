@@ -29,7 +29,7 @@ public final class GatewayContextFactory {
                 request.path(),
                 request.headers().asHttpHeaders(),
                 request.queryParams(),
-                Optional.ofNullable(request.remoteAddress().orElse(null)),
+                request.remoteAddress(),
                 Instant.now()
         );
 
