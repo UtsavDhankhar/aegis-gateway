@@ -33,13 +33,17 @@ public final class GatewayHttpHandler {
     }
 
     private Mono<ServerResponse> toServerResponse(GatewayResponse response) {
-        return ServerResponse
-                .status(response.status())
-                .headers(headers -> headers.addAll(response.headers()))
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of(
-                        "status", response.status().value(),
-                        "message", response.body()
-                ));
+
+        return switch (response) {
+            case GatewayResponse.SimpleGatewayResponse simpleGatewayResponse ->
+                ServerResponse
+                        .status(simpleGatewayResponse.status())
+                        .headers(headers -> headers.addAll(simpleGatewayResponse.headers()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(simpleGatewayResponse.body());
+
+            case GatewayResponse.NativeGatewayResponse nativeGatewayResponse ->
+                Mono.just(nativeGatewayResponse.serverResponse());
+        };
     }
 }

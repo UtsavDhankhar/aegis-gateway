@@ -2,8 +2,10 @@ package com.aegis.gateway.engine;
 
 import com.aegis.gateway.context.GatewayContext;
 import com.aegis.gateway.context.GatewayRequest;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -22,6 +24,8 @@ public final class GatewayContextFactory {
             requestId = UUID.randomUUID().toString();
         }
 
+        Flux<DataBuffer> bufferFlux = request.bodyToFlux(DataBuffer.class);
+
         GatewayRequest gatewayRequest = new GatewayRequest(
                 requestId,
                 request.method(),
@@ -30,7 +34,8 @@ public final class GatewayContextFactory {
                 request.headers().asHttpHeaders(),
                 request.queryParams(),
                 request.remoteAddress(),
-                Instant.now()
+                Instant.now(),
+                bufferFlux
         );
 
         return new GatewayContext(gatewayRequest);
