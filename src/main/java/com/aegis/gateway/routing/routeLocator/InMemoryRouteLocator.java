@@ -1,15 +1,18 @@
 package com.aegis.gateway.routing.routeLocator;
 
 import com.aegis.gateway.routing.RouteDefinition;
-import com.aegis.gateway.routing.RouteLocator;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.Map;
 
+import static com.aegis.gateway.routing.enums.RouteMetadataKeys.PRESERVE_QUERY;
+import static com.aegis.gateway.routing.enums.RouteMetadataKeys.STRIP_PREFIX;
 import static com.aegis.gateway.routing.predicate.RoutePredicateFactory.method;
 import static com.aegis.gateway.routing.predicate.RoutePredicateFactory.path;
+
 
 @Component
 public final class InMemoryRouteLocator implements RouteLocator {
@@ -21,7 +24,16 @@ public final class InMemoryRouteLocator implements RouteLocator {
                     .order(10)
                     .predicates(List.of(
                             path("/gateway/users/**"),
-                            method(HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE)
+                            method(
+                                    HttpMethod.GET,
+                                    HttpMethod.POST,
+                                    HttpMethod.PUT,
+                                    HttpMethod.DELETE
+                            )
+                    ))
+                    .metadata(Map.of(
+                            STRIP_PREFIX.getVal(), "/gateway",
+                            PRESERVE_QUERY.getVal(), true
                     ))
                     .build(),
 
@@ -32,6 +44,10 @@ public final class InMemoryRouteLocator implements RouteLocator {
                     .predicates(List.of(
                             path("/gateway/orders/**"),
                             method(HttpMethod.GET, HttpMethod.POST)
+                    ))
+                    .metadata(Map.of(
+                            STRIP_PREFIX.getVal(), "/gateway",
+                            PRESERVE_QUERY.getVal(), true
                     ))
                     .build()
     );

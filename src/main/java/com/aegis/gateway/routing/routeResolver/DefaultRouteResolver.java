@@ -2,7 +2,7 @@ package com.aegis.gateway.routing.routeResolver;
 
 import com.aegis.gateway.context.GatewayContext;
 import com.aegis.gateway.routing.RouteDefinition;
-import com.aegis.gateway.routing.RouteLocator;
+import com.aegis.gateway.routing.routeLocator.RouteLocator;
 import com.aegis.gateway.routing.RouteResolver;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
