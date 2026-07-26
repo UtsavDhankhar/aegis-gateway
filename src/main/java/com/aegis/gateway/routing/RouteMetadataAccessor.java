@@ -2,6 +2,7 @@ package com.aegis.gateway.routing;
 
 import com.aegis.gateway.routing.enums.RouteMetadataKeys;
 import com.aegis.gateway.routing.exceptions.InvalidRouteMetadataException;
+import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

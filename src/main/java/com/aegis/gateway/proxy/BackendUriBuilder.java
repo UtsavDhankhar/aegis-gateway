@@ -2,7 +2,7 @@ package com.aegis.gateway.proxy;
 
 import com.aegis.gateway.context.GatewayRequest;
 import com.aegis.gateway.proxy.pathRewrite.PathRewriteStrategy;
-import com.aegis.gateway.routing.RouteDefinition;
+import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import com.aegis.gateway.routing.RouteMetadataAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;

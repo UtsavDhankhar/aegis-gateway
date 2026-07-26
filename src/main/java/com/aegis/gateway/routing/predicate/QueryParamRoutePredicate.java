@@ -1,7 +1,6 @@
 package com.aegis.gateway.routing.predicate;
 
 import com.aegis.gateway.context.GatewayContext;
-import com.aegis.gateway.routing.RoutePredicate;
 import org.springframework.util.MultiValueMap;
 
 import java.util.Map;

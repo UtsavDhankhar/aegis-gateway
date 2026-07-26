@@ -4,7 +4,7 @@ import com.aegis.gateway.context.GatewayContext;
 import com.aegis.gateway.context.GatewayResponse;
 import com.aegis.gateway.pipeline.GatewayFilter;
 import com.aegis.gateway.pipeline.GatewayFilterChain;
-import com.aegis.gateway.routing.RouteDefinition;
+import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -31,10 +31,8 @@ public final class ProxyGatewayFilter implements GatewayFilter {
         return context.getAttribute(SELECTED_ROUTE, RouteDefinition.class)
                 .map(route -> proxyClient.proxy(context, route))
                 .orElseGet(() -> Mono.just(
-                        GatewayResponse.error(
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                                "Proxy filter reached without selected route"
-                        )
+                        GatewayResponse.error(HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Proxy filter reached without selected route")
                 ));
     }
 }

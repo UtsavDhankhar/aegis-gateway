@@ -1,3 +1,59 @@
 spring:
   application:
     name: aegis-gateway
+
+server:
+  port: 8080
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health,info,metrics
+#  endpoint:
+#    health:
+#      probes:
+#        enabled: true
+
+aegis:
+  gateway:
+    engine:
+      name: aegis-core-engine
+      version: 0.0.1
+
+    routes:
+      - id: user-service-route
+        target-uri: http://localhost:9001
+        order: 10
+        predicates:
+          - name: Path
+            args:
+              patterns:
+                - /gateway/users/**
+          - name: Method
+            args:
+              methods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+        metadata:
+          aegis.proxy.strip-prefix: /gateway
+          aegis.proxy.preserve-query: true
+
+      - id: order-service-route
+        target-uri: http://localhost:9002
+        order: 20
+        predicates:
+          - name: Path
+            args:
+              patterns:
+                - /gateway/orders/**
+          - name: Method
+            args:
+              methods:
+                - GET
+                - POST
+        metadata:
+          aegis.proxy.strip-prefix: /gateway
+          aegis.proxy.preserve-query: true

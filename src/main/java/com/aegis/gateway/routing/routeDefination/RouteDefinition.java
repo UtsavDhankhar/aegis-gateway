@@ -1,6 +1,7 @@
-package com.aegis.gateway.routing;
+package com.aegis.gateway.routing.routeDefination;
 
 import com.aegis.gateway.context.GatewayContext;
+import com.aegis.gateway.routing.predicate.RoutePredicate;
 
 import java.net.URI;
 import java.util.HashMap;

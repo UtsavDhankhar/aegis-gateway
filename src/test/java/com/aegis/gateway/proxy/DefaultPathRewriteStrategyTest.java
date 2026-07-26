@@ -2,7 +2,7 @@ package com.aegis.gateway.proxy;
 
 import com.aegis.gateway.context.GatewayRequest;
 import com.aegis.gateway.proxy.pathRewrite.DefaultPathRewrite;
-import com.aegis.gateway.routing.RouteDefinition;
+import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import com.aegis.gateway.routing.RouteMetadataAccessor;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;

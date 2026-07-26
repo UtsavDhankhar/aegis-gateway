@@ -1,4 +1,4 @@
-package com.aegis.gateway.routing;
+package com.aegis.gateway.routing.predicate;
 
 import com.aegis.gateway.context.GatewayContext;
 

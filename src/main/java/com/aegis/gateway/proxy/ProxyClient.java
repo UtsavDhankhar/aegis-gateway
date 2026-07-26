@@ -2,7 +2,7 @@ package com.aegis.gateway.proxy;
 
 import com.aegis.gateway.context.GatewayContext;
 import com.aegis.gateway.context.GatewayResponse;
-import com.aegis.gateway.routing.RouteDefinition;
+import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import reactor.core.publisher.Mono;
 
 public interface ProxyClient {

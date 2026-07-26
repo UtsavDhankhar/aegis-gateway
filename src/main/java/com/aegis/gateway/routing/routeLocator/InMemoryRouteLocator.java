@@ -1,6 +1,6 @@
 package com.aegis.gateway.routing.routeLocator;
 
-import com.aegis.gateway.routing.RouteDefinition;
+import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -14,7 +14,7 @@ import static com.aegis.gateway.routing.predicate.RoutePredicateFactory.method;
 import static com.aegis.gateway.routing.predicate.RoutePredicateFactory.path;
 
 
-@Component
+//@Component
 public final class InMemoryRouteLocator implements RouteLocator {
 
     private final List<RouteDefinition> routes = List.of(

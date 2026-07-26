@@ -1,6 +1,5 @@
 package com.aegis.gateway.routing.predicate;
 
-import com.aegis.gateway.routing.RoutePredicate;
 import org.springframework.http.HttpMethod;
 
 import java.util.Map;
