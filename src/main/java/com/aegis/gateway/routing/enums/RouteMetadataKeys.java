@@ -6,7 +6,8 @@ public enum RouteMetadataKeys {
     PREFIX_PATH("aegis.proxy.prefix-path"),
     REWRITE_PATH_REGEX("aegis.proxy.rewrite-path.regex"),
     REWRITE_PATH_REPLACEMENT("aegis.proxy.rewrite-path.replacement"),
-    PRESERVE_QUERY("aegis.proxy.preserve-query");
+    PRESERVE_QUERY("aegis.proxy.preserve-query"),
+    AUTHENTICATION_REQUIRED("aegis.security.authentication-required");
 
     final String val;
 

@@ -39,15 +39,13 @@ public final class GatewayContext {
     }
 
     public <T> Optional<T> getAttribute(String key, Class<T> type) {
+
         Object value = attributes.get(key);
 
-        if (value == null) {
-            return Optional.empty();
-        }
+        if (value == null) return Optional.empty();
 
         if (!type.isInstance(value)) {
-            throw new IllegalStateException(
-                    "Attribute '%s' is not of expected type %s"
+            throw new IllegalStateException("Attribute '%s' is not of expected type %s"
                             .formatted(key, type.getName())
             );
         }

@@ -2,6 +2,12 @@ spring:
   application:
     name: aegis-gateway
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/aegis-public.pem
+
 server:
   port: 8080
 
@@ -41,6 +47,11 @@ aegis:
           aegis.proxy.strip-prefix: /gateway
           aegis.proxy.preserve-query: true
 
+          aegis.security.authentication-required: true
+          aegis.security.allowed-roles:
+            - USER
+            - ADMIN
+
       - id: order-service-route
         target-uri: http://localhost:9002
         order: 20
@@ -57,3 +68,33 @@ aegis:
         metadata:
           aegis.proxy.strip-prefix: /gateway
           aegis.proxy.preserve-query: true
+
+          aegis.security.authentication-required: false
+
+
+
+    security:
+      subject-claim: sub
+      roles-claim: roles
+      scopes-claim: scope
+      role-prefix: ROLE_
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  structured:
+    format:
+      console: ecs

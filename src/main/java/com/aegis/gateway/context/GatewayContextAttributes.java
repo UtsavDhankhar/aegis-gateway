@@ -6,4 +6,5 @@ public class GatewayContextAttributes {
 
     public static final String REQUEST_ID = "aegis.request.id";
     public static final String SELECTED_ROUTE = "aegis.route.selected";
+    public static final String AUTHENTICATED_PRINCIPAL = "aegis.security.authenticated-principal";
 }
