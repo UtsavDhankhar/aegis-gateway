@@ -24,7 +24,7 @@ public final class RouteDebugTerminalFilter implements GatewayFilter {
 
         return context.getAttribute(SELECTED_ROUTE, RouteDefinition.class)
                 .map(route -> Mono.just(
-                        GatewayResponse.ok("Matched route %s -> %s".formatted(route.getId(), route.getTargetUri()))
+                        GatewayResponse.ok("Matched route %s -> %s".formatted(route.getId(), route.getTarget()))
                 )).orElseGet(() -> Mono.just(
                         GatewayResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Route debug terminal reached without selected route")
                 ));

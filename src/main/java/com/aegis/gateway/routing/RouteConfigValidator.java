@@ -19,7 +19,7 @@ public final class RouteConfigValidator {
 
         for (RouteConfig route : routes) {
             validateRouteId(route, routeIds);
-            validateTargetUri(route);
+            validateTarget(route);
             validatePredicates(route);
         }
     }
@@ -45,6 +45,23 @@ public final class RouteConfigValidator {
 
         if (uri.getHost() == null || uri.getHost().isBlank()) {
             throw new InvalidRouteConfigurationException("Route '%s' target URI must contain host: %s".formatted(route.id(), route.targetUri()));
+        }
+    }
+
+    private void validateTarget(RouteConfig route) {
+
+        boolean hasTargetUri = route.targetUri() != null && !route.targetUri().isBlank();
+
+        boolean hasServiceId = route.serviceId() != null && !route.serviceId().isBlank();
+
+        if (hasTargetUri == hasServiceId) {
+            throw new InvalidRouteConfigurationException(
+                    "Route '%s' must define exactly one of target-uri or service-id".formatted(route.id())
+            );
+        }
+
+        if (hasTargetUri) {
+            validateTargetUri(route);
         }
     }
 

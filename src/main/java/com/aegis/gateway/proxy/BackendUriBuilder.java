@@ -23,14 +23,14 @@ public class BackendUriBuilder {
     }
 
 
-    public URI buildBackendUri(RouteDefinition routeDefinition, GatewayRequest gatewayRequest) {
+    public URI buildBackendUri(RouteDefinition routeDefinition, GatewayRequest gatewayRequest, URI upstreamUri) {
 
         String rewrittenPath = pathRewriteStrategy.rewritePath(routeDefinition, gatewayRequest);
 
-        boolean preserveQuery = routeMetadataAccessor.getBoolean(routeDefinition, PRESERVE_QUERY, true);
+        boolean preserveQuery = routeMetadataAccessor.getBoolean(routeDefinition, PRESERVE_QUERY.getVal(), true);
 
         UriComponentsBuilder builder = UriComponentsBuilder
-                .fromUri(routeDefinition.getTargetUri())
+                .fromUri(upstreamUri)
                 .replacePath(rewrittenPath);
 
         if (preserveQuery) {

@@ -1,6 +1,5 @@
 package com.aegis.gateway.routing;
 
-import com.aegis.gateway.routing.enums.RouteMetadataKeys;
 import com.aegis.gateway.routing.exceptions.InvalidRouteMetadataException;
 import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import org.springframework.stereotype.Component;
@@ -14,9 +13,9 @@ import java.util.Optional;
 @Component
 public final class RouteMetadataAccessor {
 
-    public Optional<String> getString(RouteDefinition route, RouteMetadataKeys key) {
+    public Optional<String> getString(RouteDefinition route, String key) {
 
-        Object value = route.getMetadata().get(key.getVal());
+        Object value = route.getMetadata().get(key);
 
         if (value == null) {
             return Optional.empty();
@@ -33,15 +32,16 @@ public final class RouteMetadataAccessor {
         throw new InvalidRouteMetadataException("Route '%s' metadata key '%s' must be a String".formatted(route.getId(), key));
     }
 
-    public boolean getBoolean(RouteDefinition route, RouteMetadataKeys key, boolean defaultValue) {
+    public boolean getBoolean(RouteDefinition route, String key, boolean defaultValue) {
 
-        Object value = route.getMetadata().get(key.getVal());
+        Object value = route.getMetadata().get(key);
 
         return switch (value) {
             case null -> defaultValue;
             case Boolean booleanValue -> booleanValue;
             case String stringValue -> Boolean.parseBoolean(stringValue);
-            default -> throw new InvalidRouteMetadataException("Route '%s' metadata key '%s' must be a Boolean".formatted(route.getId(), key));
+            default ->
+                    throw new InvalidRouteMetadataException("Route '%s' metadata key '%s' must be a Boolean".formatted(route.getId(), key));
         };
 
     }
@@ -69,13 +69,42 @@ public final class RouteMetadataAccessor {
         }
 
         throw new InvalidRouteMetadataException("Route '%s' metadata key '%s' must be a String or list. Actual type: %s"
-                        .formatted(
-                                route.getId(),
-                                key,
-                                value.getClass().getName()
-                        )
+                .formatted(
+                        route.getId(),
+                        key,
+                        value.getClass().getName()
+                )
         );
     }
+
+
+    public long getLong(RouteDefinition route, String key, long defaultValue) {
+
+        Object value = route.getMetadata().get(key);
+
+        if (value == null) {
+            return defaultValue;
+        }
+
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+
+        if (value instanceof String stringValue) {
+            try {
+                return Long.parseLong(stringValue);
+            } catch (NumberFormatException exception) {
+                throw new InvalidRouteMetadataException(
+                        "Route '%s' metadata '%s' must be numeric".formatted(route.getId(), key), exception
+                );
+            }
+        }
+
+        throw new InvalidRouteMetadataException(
+                "Route '%s' metadata '%s' must be numeric".formatted(route.getId(), key)
+        );
+    }
+
 
     private List<String> normalizeValues(Collection<?> values) {
         return values.stream()

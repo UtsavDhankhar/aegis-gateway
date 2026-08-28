@@ -5,6 +5,8 @@ import com.aegis.gateway.context.GatewayRequest;
 import com.aegis.gateway.context.GatewayResponse;
 import com.aegis.gateway.routing.routeDefination.RouteDefinition;
 import com.aegis.gateway.routing.exceptions.InvalidRouteMetadataException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -26,6 +28,10 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @Component
 public final class DefaultProxyClient implements ProxyClient {
 
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DefaultProxyClient.class);
+
     private static final Set<HttpMethod> METHODS_THAT_MAY_HAVE_BODY = Set.of(HttpMethod.POST,
             HttpMethod.PUT,
             HttpMethod.PATCH);
@@ -33,11 +39,14 @@ public final class DefaultProxyClient implements ProxyClient {
     private final WebClient proxyWebClient;
     private final BackendUriBuilder backendUriBuilder;
     private final HeaderForwardingStrategy headerForwardingStrategy;
+    private final UpstreamTargetResolver upstreamTargetResolver;
 
-    public DefaultProxyClient(WebClient proxyWebClient, BackendUriBuilder backendUriBuilder, HeaderForwardingStrategy headerForwardingStrategy) {
+    public DefaultProxyClient(WebClient proxyWebClient, BackendUriBuilder backendUriBuilder,
+                              HeaderForwardingStrategy headerForwardingStrategy, UpstreamTargetResolver upstreamTargetResolver) {
         this.proxyWebClient = proxyWebClient;
         this.backendUriBuilder = backendUriBuilder;
         this.headerForwardingStrategy = headerForwardingStrategy;
+        this.upstreamTargetResolver = upstreamTargetResolver;
     }
 
     @Override
@@ -46,20 +55,12 @@ public final class DefaultProxyClient implements ProxyClient {
         return Mono.defer(() -> {
 
                     GatewayRequest request = context.request();
-                    URI backendUri = backendUriBuilder.buildBackendUri(route, request);
+                    URI upstreamBaseUrl = upstreamTargetResolver.resolve(context, route);
+                    URI backendUri = backendUriBuilder.buildBackendUri(route, request, upstreamBaseUrl);
 
                     WebClient.RequestBodySpec requestSpec = proxyWebClient.method(request.method())
                             .uri(backendUri)
                             .headers(headers -> headerForwardingStrategy.copyRequestHeaders(request, headers));
-
-//                    if (METHODS_THAT_MAY_HAVE_BODY.contains(request.method())) {
-//                        return requestSpec.body(BodyInserters.fromDataBuffers(request.body()))
-//                                .exchangeToMono(clientResponse -> toGatewayResponse(clientResponse.statusCode(),
-//                                        clientResponse.headers().asHttpHeaders(), clientResponse.bodyToFlux(DataBuffer.class)));
-//                    }
-//
-//                    return requestSpec.exchangeToMono(clientResponse -> toGatewayResponse(clientResponse.statusCode(),
-//                            clientResponse.headers().asHttpHeaders(), clientResponse.bodyToFlux(DataBuffer.class)));
 
 
                     if (METHODS_THAT_MAY_HAVE_BODY.contains(request.method())) {
@@ -73,18 +74,19 @@ public final class DefaultProxyClient implements ProxyClient {
                 }).onErrorResume(InvalidRouteMetadataException.class,
                 exception -> Mono.just(GatewayResponse.error(INTERNAL_SERVER_ERROR,
                         "Gateway route metadata error: " + exception.getMessage())))
-                .onErrorResume(throwable -> Mono.just(GatewayResponse.error(BAD_GATEWAY,
-                        "Bad gateway: " + throwable.getClass().getSimpleName())));
-    }
+                .onErrorResume(throwable -> {
 
-//    private Mono<GatewayResponse> toGatewayResponse(HttpStatusCode statusCode, HttpHeaders backendHeaders,
-//                                                    Flux<DataBuffer> backendBody) {
-//
-//        HttpHeaders responseHeaders = headerForwardingStrategy.copyResponseHeaders(backendHeaders);
-//        ServerResponse.BodyBuilder responseBuilder = ServerResponse.status(statusCode);
-//        responseBuilder.headers(headers -> headers.addAll(responseHeaders));
-//        return responseBuilder.body(backendBody, DataBuffer.class).map(GatewayResponse::nativeResponse);
-//    }
+                    LOGGER.error(
+                            "Proxy request failed. requestId={}, routeId={}",
+                            context.request().requestId(),
+                            route.getId(),
+                            throwable);
+
+                    return Mono.just(GatewayResponse.error(BAD_GATEWAY,
+                            "Bad gateway: " + throwable.getClass().getSimpleName()));
+
+                });
+    }
 
 
     private Mono<GatewayResponse> toGatewayResponse(ClientResponse clientResponse) {

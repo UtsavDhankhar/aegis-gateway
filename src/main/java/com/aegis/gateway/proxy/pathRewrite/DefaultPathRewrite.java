@@ -29,9 +29,9 @@ public class DefaultPathRewrite implements PathRewriteStrategy {
 
         String originalPath = request.uri().getRawPath();
 
-        Optional<String> rewriteRegex = metadataAccessor.getString(route, REWRITE_PATH_REGEX);
+        Optional<String> rewriteRegex = metadataAccessor.getString(route, REWRITE_PATH_REGEX.getVal());
 
-        Optional<String> rewriteReplacement = metadataAccessor.getString(route, REWRITE_PATH_REPLACEMENT);
+        Optional<String> rewriteReplacement = metadataAccessor.getString(route, REWRITE_PATH_REPLACEMENT.getVal());
 
         if (rewriteRegex.isPresent() || rewriteReplacement.isPresent()) {
             return rewriteUsingRegex(route, originalPath, rewriteRegex, rewriteReplacement);
@@ -39,12 +39,12 @@ public class DefaultPathRewrite implements PathRewriteStrategy {
 
         String rewrittenPath = originalPath;
 
-        Optional<String> stripPrefix = metadataAccessor.getString(route, STRIP_PREFIX);
+        Optional<String> stripPrefix = metadataAccessor.getString(route, STRIP_PREFIX.getVal());
         if (stripPrefix.isPresent()) {
             rewrittenPath = stripPrefix(rewrittenPath, stripPrefix.get());
         }
 
-        Optional<String> prefixPath = metadataAccessor.getString(route, PREFIX_PATH);
+        Optional<String> prefixPath = metadataAccessor.getString(route, PREFIX_PATH.getVal());
         if (prefixPath.isPresent()) {
             rewrittenPath = prefixPath(rewrittenPath, prefixPath.get());
         }

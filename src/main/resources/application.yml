@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: aegis-gateway
@@ -8,18 +11,15 @@ spring:
         jwt:
           public-key-location: classpath:keys/aegis-public.pem
 
-server:
-  port: 8080
 
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: health,info,metrics
-#  endpoint:
-#    health:
-#      probes:
-#        enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      connect-timeout: 2s
+      timeout: 2s
+
 
 aegis:
   gateway:
@@ -29,7 +29,7 @@ aegis:
 
     routes:
       - id: user-service-route
-        target-uri: http://localhost:9001
+        service-id: user-service
         order: 10
         predicates:
           - name: Path
@@ -52,6 +52,16 @@ aegis:
             - USER
             - ADMIN
 
+          aegis.ratelimit.enabled: true
+          aegis.ratelimit.capacity: 20
+          aegis.ratelimit.refill-tokens: 10
+          aegis.ratelimit.refill-period-ms: 1000
+          aegis.ratelimit.tokens-per-request: 1
+          aegis.ratelimit.key-resolver: principal
+          aegis.ratelimit.fail-open: true
+
+
+
       - id: order-service-route
         target-uri: http://localhost:9002
         order: 20
@@ -68,7 +78,6 @@ aegis:
         metadata:
           aegis.proxy.strip-prefix: /gateway
           aegis.proxy.preserve-query: true
-
           aegis.security.authentication-required: false
 
 
@@ -78,6 +87,31 @@ aegis:
       roles-claim: roles
       scopes-claim: scope
       role-prefix: ROLE_
+
+
+    services:
+      - id: user-service
+        instances:
+
+          - id: user-1
+            uri: http://localhost:9001
+            weight: 1
+            enabled: true
+
+          - id: user-2
+            uri: http://localhost:9003
+            weight: 1
+            enabled: true
+
+      - id: order-service
+        instances:
+
+          - id: order-1
+            uri: http://localhost:9002
+            weight: 1
+            enabled: true
+
+aegis.loadbalancer.strategy: random
 
 management:
   endpoints:

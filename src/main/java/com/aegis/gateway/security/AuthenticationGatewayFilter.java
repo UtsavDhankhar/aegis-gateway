@@ -60,7 +60,7 @@ public final class AuthenticationGatewayFilter implements GatewayFilter {
 
         RouteDefinition route = routeOptional.get();
 
-        boolean authenticationRequired = metadataAccessor.getBoolean(route, RouteMetadataKeys.AUTHENTICATION_REQUIRED, false);
+        boolean authenticationRequired = metadataAccessor.getBoolean(route, RouteMetadataKeys.AUTHENTICATION_REQUIRED.getVal(), false);
 
         if (!authenticationRequired) {
             return chain.next(context);

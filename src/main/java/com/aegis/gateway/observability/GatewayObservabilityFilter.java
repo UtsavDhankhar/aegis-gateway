@@ -2,6 +2,7 @@ package com.aegis.gateway.observability;
 
 import com.aegis.gateway.context.GatewayContext;
 import com.aegis.gateway.context.GatewayResponse;
+import com.aegis.gateway.loadbalancer.ServiceInstance;
 import com.aegis.gateway.pipeline.GatewayFilter;
 import com.aegis.gateway.pipeline.GatewayFilterChain;
 import com.aegis.gateway.routing.routeDefination.RouteDefinition;
@@ -9,12 +10,14 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.spi.LoggingEventBuilder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
 import static com.aegis.gateway.context.GatewayContextAttributes.SELECTED_ROUTE;
+import static com.aegis.gateway.context.GatewayContextAttributes.SELECTED_SERVICE_INSTANCE;
 
 @Component
 public final class GatewayObservabilityFilter implements GatewayFilter {
@@ -92,13 +95,21 @@ public final class GatewayObservabilityFilter implements GatewayFilter {
 
     private void logCompletedRequest(GatewayContext context, String routeId, int status, GatewayOutcome outcome) {
 
-        LOGGER.atInfo().addKeyValue("requestId", context.request().requestId())
+        LoggingEventBuilder logBuilder = LOGGER.atInfo().addKeyValue("requestId", context.request().requestId())
                 .addKeyValue("method", context.request().method().name())
                 .addKeyValue("path", context.request().path())
-                .addKeyValue("routeId", routeId).addKeyValue("status", status)
+                .addKeyValue("routeId", routeId)
+                .addKeyValue("status", status)
                 .addKeyValue("outcome", outcome.name())
-                .addKeyValue("durationMs", context.elapsedTime().toMillis())
-                .log("gateway.request.completed");
+                .addKeyValue("durationMs", context.elapsedTime().toMillis());
+
+        context.getAttribute(SELECTED_SERVICE_INSTANCE, ServiceInstance.class).ifPresent(instance ->
+            logBuilder.addKeyValue("serviceId", instance.serviceId())
+                    .addKeyValue("instanceId", instance.instanceId())
+                    .addKeyValue("upstream", instance.baseUri())
+        );
+
+        logBuilder.log("gateway.request.completed");
     }
 
     private String resolveRouteId(GatewayContext context) {

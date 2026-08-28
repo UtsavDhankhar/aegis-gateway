@@ -20,7 +20,8 @@ public record GatewayRoutesProperties(@Valid List<RouteConfig> routes) {
 
     public record RouteConfig(
             @NotBlank String id,
-            @NotBlank String targetUri,
+            String targetUri,
+            String serviceId,
             Integer order,
             @Valid List<PredicateConfig> predicates,
             Map<String, Object> metadata

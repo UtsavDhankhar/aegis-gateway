@@ -23,12 +23,20 @@ public final class RouteDefinitionFactory {
                 .map(predicateFactoryRegistry::create)
                 .toList();
 
-        return RouteDefinition.builder()
+        RouteDefinition.Builder builder =  RouteDefinition.builder()
                 .id(routeConfig.id())
-                .targetUri(URI.create(routeConfig.targetUri()))
                 .order(routeConfig.order())
                 .predicates(predicates)
-                .metadata(routeConfig.metadata())
-                .build();
+                .metadata(routeConfig.metadata());
+
+
+        if (routeConfig.serviceId() != null && !routeConfig.serviceId().isEmpty()) {
+            builder.serviceId(routeConfig.serviceId());
+        } else {
+            builder.targetUri(routeConfig.targetUri());
+        }
+
+        return builder.build();
+
     }
 }

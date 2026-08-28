@@ -1,6 +1,7 @@
 package com.aegis.gateway.routing.routeDefination;
 
 import com.aegis.gateway.context.GatewayContext;
+import com.aegis.gateway.routing.RouteTarget;
 import com.aegis.gateway.routing.predicate.RoutePredicate;
 
 import java.net.URI;
@@ -12,14 +13,14 @@ import java.util.Objects;
 public final class RouteDefinition {
 
     private final String id;
-    private final URI targetUri;
+    private final RouteTarget target;
     private final int order;
     private final List<RoutePredicate> predicates;
     private final Map<String, Object> metadata;
 
     private RouteDefinition(Builder builder) {
         this.id = Objects.requireNonNull(builder.id, "route id must not be null");
-        this.targetUri = Objects.requireNonNull(builder.targetUri, "target uri must not be null");
+        this.target = builder.buildTarget();
         this.order = builder.order;
         this.predicates = List.copyOf(builder.predicates);
         this.metadata = Map.copyOf(builder.metadata);
@@ -33,8 +34,8 @@ public final class RouteDefinition {
         return id;
     }
 
-    public URI getTargetUri() {
-        return targetUri;
+    public RouteTarget getTarget() {
+        return target;
     }
 
     public int getOrder() {
@@ -62,6 +63,7 @@ public final class RouteDefinition {
 
         private String id;
         private URI targetUri;
+        private String serviceId;
         private int order = 0;
         private List<RoutePredicate> predicates = List.of();
         private Map<String, Object> metadata = new HashMap<>();
@@ -84,6 +86,11 @@ public final class RouteDefinition {
             return this;
         }
 
+        public Builder serviceId(String serviceId) {
+            this.serviceId = serviceId;
+            return this;
+        }
+
         public Builder order(int order) {
             this.order = order;
             return this;
@@ -97,6 +104,18 @@ public final class RouteDefinition {
         public Builder metadata(Map<String, Object> metadata) {
             this.metadata = new HashMap<>(metadata);
             return this;
+        }
+
+        private RouteTarget buildTarget() {
+
+            boolean direct = targetUri != null;
+            boolean service = serviceId != null && !serviceId.isEmpty();
+
+            if (direct == service) throw new IllegalArgumentException("Route should define direct or service");
+
+            if (direct) return new RouteTarget.Direct(targetUri);
+
+            return new RouteTarget.Service(serviceId);
         }
 
         public RouteDefinition build() {

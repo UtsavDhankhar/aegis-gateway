@@ -55,7 +55,9 @@ class DefaultRouteResolverTest {
         Mono<RouteDefinition> result = resolver.resolve(context);
 
         StepVerifier.create(result).expectNextMatches(route ->
-                        route.getId().equals("admin-user-route") && route.getTargetUri().toString().equals("http://localhost:9003")
+                        route.getId().equals("admin-user-route") &&
+                                route.getTarget() instanceof RouteTarget.Direct(URI baseUri) &&
+                                baseUri.toString().equals("http://localhost:9003")
                 ).verifyComplete();
     }
 
