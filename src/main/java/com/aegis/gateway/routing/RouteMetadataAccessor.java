@@ -18,7 +18,20 @@ public final class RouteMetadataAccessor {
         Object value = route.getMetadata().get(key);
 
         if (value == null) {
-            return Optional.empty();
+
+            String[] parts = key.split("\\.");
+            Object metadata = route.getMetadata();
+
+            for (String part : parts) {
+
+                if (!(metadata instanceof Map<?,?> map)) {
+                    return Optional.empty();
+                }
+
+                metadata = map.get(part);
+                if (metadata == null) {return Optional.empty();}
+            }
+            value = metadata;
         }
 
         if (value instanceof String stringValue) {

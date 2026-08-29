@@ -2,7 +2,7 @@ package com.aegis.gateway.loadbalancer.instancesupplier;
 
 import com.aegis.gateway.config.GatewayServicesProperties;
 import com.aegis.gateway.loadbalancer.ServiceInstance;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 import java.net.URI;
@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Service
+
+//@Component // TODO: OLD FLOW, without Health Check.
 public class ConfigServiceInstanceSupplier implements ServiceInstanceSupplier{
 
     private final Map<String, List<ServiceInstance>> instances;

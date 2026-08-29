@@ -111,6 +111,14 @@ aegis:
             weight: 1
             enabled: true
 
+    health-check:
+      enabled: true
+      interval: 5s
+      timeout: 1s
+      healthy-threshold: 2
+      unhealthy-threshold: 2
+      default-path: /actuator/health/readiness
+
 aegis.loadbalancer.strategy: random
 
 management:

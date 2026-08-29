@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Import(ProxyIntegrationTest.JwtTestConfiguration.class)
@@ -30,7 +31,7 @@ import java.util.List;
 @AutoConfigureWebTestClient
 public class ProxyIntegrationTest {
 
-    private static HttpServer userService;
+    private static final List<HttpServer> userServiceList = new ArrayList<>();
 
     @Autowired
     private WebTestClient webTestClient;
@@ -58,8 +59,14 @@ public class ProxyIntegrationTest {
     @BeforeAll
     static void startBackend() throws IOException {
 
-        userService = HttpServer.create(new InetSocketAddress(9001), 0);
-        userService.createContext("/gateway/users/123", exchange -> {
+        createHttpServer(9001);
+        createHttpServer(9003);
+    }
+
+    private static void createHttpServer(Integer port) throws IOException {
+
+        HttpServer userService = HttpServer.create(new InetSocketAddress(port), 0);
+        userService.createContext("/users/123", exchange -> {
             byte[] response = """
                     {
                       "id": 123,
@@ -76,13 +83,30 @@ public class ProxyIntegrationTest {
             }
         });
 
+        userService.createContext("/actuator/health/readiness", exchange -> {
+            byte[] body = """
+                    {"status" : "UP"}
+                    """.getBytes(StandardCharsets.UTF_8);
+
+            exchange.getResponseHeaders().add("Content-Type", "application/json");
+
+            exchange.sendResponseHeaders(200, body.length);
+
+            try (OutputStream outputStream = exchange.getResponseBody()) {
+                outputStream.write(body);
+            }
+
+        });
+
         userService.start();
+        userServiceList.add(userService);
     }
+
 
     @AfterAll
     static void stopBackend() {
-        if (userService != null) {
-            userService.stop(0);
+        if (!userServiceList.isEmpty()) {
+            userServiceList.forEach(userService -> userService.stop(0));
         }
     }
 
